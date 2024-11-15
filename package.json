@@ -1,0 +1,7 @@
+{
+  "name": "coin-tracker",
+  "packageManager": "yarn@4.5.1",
+  "workspaces": [
+    "packages/*"
+  ]
+}
