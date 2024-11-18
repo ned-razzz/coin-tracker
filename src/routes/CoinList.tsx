@@ -1,6 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
 import { styled } from "styled-components";
+import { fetchCoinList } from "./api";
+import { isDarkAtom } from "./atom";
 
 //styled comoponents
 const Container = styled.div`
@@ -13,6 +17,7 @@ const Header = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
 `;
 
 const Title = styled.h1`
@@ -58,7 +63,7 @@ const Loader = styled.h2`
   align-items: center;
 `;
 
-interface CoinData {
+interface ICoin {
   id: string;
   name: string;
   symbol: string;
@@ -69,37 +74,33 @@ interface CoinData {
 }
 
 export const CoinList = () => {
-  const [coinList, setCoinList] = useState<CoinData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  //코인 목록 fetching
-  useEffect(() => {
-    (async () => {
-      const response = await fetch("https://api.coinpaprika.com/v1/coins");
-      const json = await response.json();
-      setCoinList(json.slice(0, 100));
-      setIsLoading(false);
-    })();
-  }, []);
+  const { isLoading, data } = useQuery<ICoin[]>({
+    queryKey: ["coinList"],
+    queryFn: fetchCoinList,
+  });
 
   //Coin 페이지 라우팅 이벤트 핸들러
   const navigate = useNavigate();
-  const routeCoinPage = (coin: CoinData) => () => {
+  const routeCoinPage = (coin: ICoin) => () => {
     navigate(`/coins/${coin.id}`, {
       state: { name: coin.name, logo: `https://static.coinpaprika.com/coin/${coin.id}/logo.png` },
     });
   };
 
+  //Dark Mode value
+  const setIsDark = useSetRecoilState(isDarkAtom);
+
   return (
     <Container>
       <Header>
-        <Title>Coin List</Title>
+        <Title>Coin List </Title>
+        <button onClick={() => setIsDark((current) => !current)}>Toggle Theme</button>
       </Header>
       {isLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <ItemList>
-          {coinList.map((coin) => (
+          {data?.slice(0, 100).map((coin) => (
             <CoinItem key={coin.id} onClick={routeCoinPage(coin)}>
               <CoinLogo src={`https://static.coinpaprika.com/coin/${coin.id}/logo.png`}></CoinLogo>
               {coin.name} &rarr;
