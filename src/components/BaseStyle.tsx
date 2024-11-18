@@ -10,6 +10,9 @@ const GlobalStyle = createGlobalStyle`
     background-color: ${(props) => props.theme.bgColor};
     color: ${(props) => props.theme.textColor};
     font-family: 'Nanum Gothic', sans-serif;
+    &::-webkit-scrollbar {
+      display: none; /* 스크롤바 숨김 */
+    }
   }
   a {
     text-decoration: none;

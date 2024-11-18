@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { styled } from "styled-components";
 
+//styled comoponents
 const Container = styled.div`
-  padding: 0 10vw;
-  max-width: 800px;
+  width: 600px;
   margin: 0 auto;
 `;
 
@@ -17,14 +17,18 @@ const Header = styled.div`
 
 const Title = styled.h1`
   color: ${(props) => props.theme.accentColor};
-  font-size: 30px;
+  font-size: 2rem;
   font-weight: bold;
 `;
 
-const ItemList = styled.ul``;
+const ItemList = styled.ul`
+  padding: 0 60px;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 20px;
+`;
 
 const CoinItem = styled.li`
-  margin-bottom: 15px;
   padding: 20px;
   border-radius: 15px;
   background-color: ${(props) => props.theme.subColor};
@@ -47,7 +51,7 @@ const CoinLogo = styled.img`
 `;
 
 const Loader = styled.h2`
-  font-size: 3rem;
+  font-size: 1.5rem;
 
   display: flex;
   justify-content: center;
@@ -68,6 +72,7 @@ export const CoinList = () => {
   const [coinList, setCoinList] = useState<CoinData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  //코인 목록 fetching
   useEffect(() => {
     (async () => {
       const response = await fetch("https://api.coinpaprika.com/v1/coins");
@@ -77,22 +82,25 @@ export const CoinList = () => {
     })();
   }, []);
 
+  //Coin 페이지 라우팅 이벤트 핸들러
   const navigate = useNavigate();
-  const routeCoinPage = (coinId: string) => () => {
-    navigate(`/coins/${coinId}`);
+  const routeCoinPage = (coin: CoinData) => () => {
+    navigate(`/coins/${coin.id}`, {
+      state: { name: coin.name, logo: `https://static.coinpaprika.com/coin/${coin.id}/logo.png` },
+    });
   };
 
   return (
     <Container>
       <Header>
-        <Title>Coin Chart</Title>
+        <Title>Coin List</Title>
       </Header>
       {isLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <ItemList>
           {coinList.map((coin) => (
-            <CoinItem key={coin.id} onClick={routeCoinPage(coin.name)}>
+            <CoinItem key={coin.id} onClick={routeCoinPage(coin)}>
               <CoinLogo src={`https://static.coinpaprika.com/coin/${coin.id}/logo.png`}></CoinLogo>
               {coin.name} &rarr;
             </CoinItem>
